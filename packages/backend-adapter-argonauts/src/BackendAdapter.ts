@@ -1,10 +1,4 @@
-import {
-	AbstractRequestAdapter,
-	BackendAdapterInterface,
-	NSTaskContentAdapter,
-	NSTaskContentQuestAdapter,
-	NSTaskContentQuestAnswerAdapter,
-} from "@xyng/yuoshi-backend-adapter"
+import { AbstractRequestAdapter, BackendAdapterInterface } from "@xyng/yuoshi-backend-adapter"
 
 import { StudipOauthAuthenticationHandler } from "./StudipOauthAuthenticationHandler"
 

@@ -48,18 +48,21 @@ const base = "http://localhost:8092"
 ;(async () => {
 	let auth_tokens = secrets.users.test_autor
 
-	const studipOauthAuthenticationHandler = new StudipOauthAuthenticationHandler({
-		consumer: secrets.client,
-		endpoints: {
-			request_token: `${base}/dispatch.php/api/oauth/request_token`,
-			access_token: `${base}/dispatch.php/api/oauth/access_token`,
-			authorize: `${base}/dispatch.php/api/oauth/authorize`,
-			// our url - user will be redirected after auth
-			callback: "http://localhost:10000"
+	const studipOauthAuthenticationHandler = new StudipOauthAuthenticationHandler(
+		{
+			consumer: secrets.client,
+			endpoints: {
+				request_token: `${base}/dispatch.php/api/oauth/request_token`,
+				access_token: `${base}/dispatch.php/api/oauth/access_token`,
+				authorize: `${base}/dispatch.php/api/oauth/authorize`,
+				// our url - user will be redirected after auth
+				callback: "http://localhost:10000",
+			},
+		},
+		() => {
+			return auth_tokens
 		}
-	}, () => {
-		return auth_tokens
-	})
+	)
 
 	const requestAdapter = new RequestAdapterAxios(studipOauthAuthenticationHandler, {
 		base,
@@ -67,15 +70,11 @@ const base = "http://localhost:8092"
 
 	const argonautsAdapter = new BackendAdapter(requestAdapter)
 
-	console.log("initialized backend adapter")
-
 	try {
 		// we are not authenticated. do it now!
 		if (!auth_tokens || !auth_tokens.key || !auth_tokens.secret) {
 			try {
-				const tokens = await studipOauthAuthenticationHandler.getRequestToken(
-					requestAdapter
-				)
+				const tokens = await studipOauthAuthenticationHandler.getRequestToken(requestAdapter)
 
 				console.log(`Please click on link and grant access: ${tokens.url}`)
 
@@ -85,7 +84,7 @@ const base = "http://localhost:8092"
 					requestAdapter,
 					{
 						key: tokens.oauth_token,
-						secret: tokens.oauth_token_secret
+						secret: tokens.oauth_token_secret,
 					},
 					oauth_verifier
 				)
@@ -110,10 +109,6 @@ const base = "http://localhost:8092"
 
 		return
 	}
-
-	// const data = await makeRequest(backendAdapter.userAdapter.getInfo())
-	// const data = await makeRequest(backendAdapter.courseAdapter.getCourses("e7a0a84b161f3e8c09b4a0a2e8a58147"))
-	// const data = await makeRequest(backendAdapter.courseAdapter.getCourses("76ed43ef286fb55cf9e41beadb484a9f"))
 
 	console.log("Lade Packages. Einen Moment bitte ...")
 	const packages = argonautsAdapter.packageAdapter.getPackagesForCourse("a07535cf2f8a72df33c12ddfa4b53dde")
